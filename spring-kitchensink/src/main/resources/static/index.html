@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Spring Kitchensink</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            padding-top: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            max-width: 960px;
+        }
+        .header {
+            padding: 20px 0;
+            border-bottom: 1px solid #e5e5e5;
+            margin-bottom: 30px;
+        }
+        .form-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .members-section {
+            background-color: white;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+        .error-message {
+            color: #dc3545;
+            font-size: 0.875rem;
+            margin-top: 0.25rem;
+        }
+        .form-error {
+            display: none;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+        .form-success {
+            display: none;
+            padding: 10px;
+            margin-bottom: 15px;
+            border-radius: 4px;
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header text-center">
+            <h1>Spring Kitchensink</h1>
+            <p class="lead">A Spring Boot migration of the JBoss EAP kitchensink quickstart</p>
+        </div>
+
+        <div class="row">
+            <div class="col-md-5">
+                <div class="form-section">
+                    <h2>Register a Member</h2>
+                    <div id="formSuccess" class="form-success">
+                        Member registered successfully!
+                    </div>
+                    <div id="formError" class="form-error">
+                        Error registering member. Please check the form and try again.
+                    </div>
+                    <form id="memberForm">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">Name</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                            <div id="nameError" class="error-message"></div>
+                            <div class="form-text">Must not contain numbers, 1-25 characters.</div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">Email</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                            <div id="emailError" class="error-message"></div>
+                        </div>
+                        <div class="mb-3">
+                            <label for="phoneNumber" class="form-label">Phone Number</label>
+                            <input type="tel" class="form-control" id="phoneNumber" name="phoneNumber" required>
+                            <div id="phoneNumberError" class="error-message"></div>
+                            <div class="form-text">10-12 digits, numbers only.</div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Register</button>
+                    </form>
+                </div>
+            </div>
+            <div class="col-md-7">
+                <div class="members-section">
+                    <h2>Members</h2>
+                    <div class="table-responsive">
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Phone Number</th>
+                                </tr>
+                            </thead>
+                            <tbody id="membersTableBody">
+                                <!-- Members will be loaded here -->
+                                <tr>
+                                    <td colspan="4" class="text-center">Loading members...</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load members when the page loads
+            loadMembers();
+
+            // Handle form submission
+            document.getElementById('memberForm').addEventListener('submit', function(event) {
+                event.preventDefault();
+                registerMember();
+            });
+        });
+
+        // Function to load all members
+        function loadMembers() {
+            fetch('/spring-kitchensink/api/members')
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error('Failed to load members');
+                    }
+                    return response.json();
+                })
+                .then(members => {
+                    displayMembers(members);
+                })
+                .catch(error => {
+                    console.error('Error loading members:', error);
+                    document.getElementById('membersTableBody').innerHTML = 
+                        '<tr><td colspan="4" class="text-center text-danger">Error loading members. Please try again.</td></tr>';
+                });
+        }
+
+        // Function to display members in the table
+        function displayMembers(members) {
+            const tableBody = document.getElementById('membersTableBody');
+            
+            if (members.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="4" class="text-center">No members found</td></tr>';
+                return;
+            }
+
+            let html = '';
+            members.forEach(member => {
+                html += `
+                    <tr>
+                        <td>${member.id}</td>
+                        <td>${escapeHtml(member.name)}</td>
+                        <td>${escapeHtml(member.email)}</td>
+                        <td>${escapeHtml(member.phoneNumber)}</td>
+                    </tr>
+                `;
+            });
+            
+            tableBody.innerHTML = html;
+        }
+
+        // Function to register a new member
+        function registerMember() {
+            // Reset error messages
+            clearErrors();
+            
+            // Get form values
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const phoneNumber = document.getElementById('phoneNumber').value;
+            
+            // Create member object
+            const member = {
+                name: name,
+                email: email,
+                phoneNumber: phoneNumber
+            };
+            
+            // Send POST request to register member
+            fetch('/spring-kitchensink/api/members', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(member)
+            })
+            .then(response => {
+                if (response.status === 201) {
+                    return response.json().then(data => {
+                        showSuccess();
+                        resetForm();
+                        loadMembers(); // Reload the members list
+                        return data;
+                    });
+                } else if (response.status === 400) {
+                    // Validation errors
+                    return response.json().then(errors => {
+                        displayValidationErrors(errors);
+                        throw new Error('Validation failed');
+                    });
+                } else if (response.status === 409) {
+                    // Email already exists
+                    return response.json().then(errors => {
+                        if (errors.email) {
+                            document.getElementById('emailError').textContent = errors.email;
+                        } else {
+                            document.getElementById('emailError').textContent = 'Email already exists';
+                        }
+                        throw new Error('Email already exists');
+                    });
+                } else {
+                    throw new Error('Registration failed');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                if (error.message !== 'Validation failed' && error.message !== 'Email already exists') {
+                    showError('An unexpected error occurred. Please try again.');
+                }
+            });
+        }
+
+        // Function to display validation errors
+        function displayValidationErrors(errors) {
+            for (const [field, message] of Object.entries(errors)) {
+                const errorElement = document.getElementById(`${field}Error`);
+                if (errorElement) {
+                    errorElement.textContent = message;
+                }
+            }
+            showError('Please correct the errors in the form.');
+        }
+
+        // Function to show success message
+        function showSuccess() {
+            const successElement = document.getElementById('formSuccess');
+            successElement.style.display = 'block';
+            
+            // Hide after 3 seconds
+            setTimeout(() => {
+                successElement.style.display = 'none';
+            }, 3000);
+        }
+
+        // Function to show error message
+        function showError(message) {
+            const errorElement = document.getElementById('formError');
+            errorElement.textContent = message;
+            errorElement.style.display = 'block';
+        }
+
+        // Function to clear all error messages
+        function clearErrors() {
+            document.getElementById('nameError').textContent = '';
+            document.getElementById('emailError').textContent = '';
+            document.getElementById('phoneNumberError').textContent = '';
+            document.getElementById('formError').style.display = 'none';
+            document.getElementById('formSuccess').style.display = 'none';
+        }
+
+        // Function to reset the form
+        function resetForm() {
+            document.getElementById('memberForm').reset();
+        }
+
+        // Helper function to escape HTML to prevent XSS
+        function escapeHtml(unsafe) {
+            return unsafe
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+    </script>
+</body>
+</html>
