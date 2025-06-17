@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<suppressions xmlns="https://jeremylong.github.io/DependencyCheck/dependency-suppression.1.3.xsd">
+    <!-- 
+    Suppression file for OWASP Dependency Check
+    
+    This file allows you to suppress false positive results from the dependency check scan.
+    
+    Examples of how to use suppressions:
+    
+    1. Suppress by CVE:
+    <suppress>
+        <notes>Reason for suppressing this specific CVE</notes>
+        <cve>CVE-2020-12345</cve>
+    </suppress>
+    
+    2. Suppress by dependency name:
+    <suppress>
+        <notes>Reason for suppressing all vulnerabilities for this dependency</notes>
+        <gav regex="true">org\.example:library:.*</gav>
+    </suppress>
+    
+    3. Suppress by file path:
+    <suppress>
+        <notes>Reason for suppressing vulnerabilities in this file</notes>
+        <filePath regex="true">.*\/example\.jar</filePath>
+    </suppress>
+    
+    4. Suppress specific vulnerability for specific dependency:
+    <suppress>
+        <notes>Reason for suppressing this specific vulnerability in this dependency</notes>
+        <gav>org.example:library:1.0.0</gav>
+        <cve>CVE-2020-12345</cve>
+    </suppress>
+    -->
+    
+    <!-- Add specific suppressions below this line as they are identified -->
+    
+</suppressions>
