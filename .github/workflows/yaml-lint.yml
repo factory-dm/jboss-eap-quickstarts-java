@@ -1,0 +1,58 @@
+name: YAML Lint
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - '[0-9]+.[0-9]+.x'  # Matches version branches like 8.0.x
+    paths:
+      - '**.yml'
+      - '**.yaml'
+      - '.github/workflows/**'
+  pull_request:
+    branches:
+      - main
+      - master
+      - '[0-9]+.[0-9]+.x'
+    paths:
+      - '**.yml'
+      - '**.yaml'
+      - '.github/workflows/**'
+  workflow_dispatch:  # Allow manual triggering
+
+# Only run the latest job for each ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yaml-lint:
+    name: Lint YAML Files
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+      
+      # Install yamllint
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+      
+      - name: Install yamllint
+        run: pip install yamllint
+      
+      # Run yamllint with custom config
+      - name: Lint YAML Files
+        run: |
+          # Find all YAML files and lint them using our custom config
+          yamllint -c .github/yamllint.config .
+        
+      # Optional - Add summary of results
+      - name: Summarize Results
+        if: always()
+        run: |
+          echo "### YAML Lint Results" >> $GITHUB_STEP_SUMMARY
+          echo "Linting completed. Check logs for any issues." >> $GITHUB_STEP_SUMMARY

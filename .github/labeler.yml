@@ -1,0 +1,90 @@
+# Pull Request Labeler Configuration
+# This file defines patterns to automatically label PRs based on modified files
+
+# Documentation changes
+documentation:
+  - 'README*.adoc'
+  - 'README*.md'
+  - '**/*.adoc'
+  - '**/*.md'
+  - 'shared-doc/**/*'
+
+# Infrastructure changes
+infrastructure:
+  - '.github/**/*'
+  - 'pom.xml'
+  - 'dist/**/*'
+  - 'scripts/**/*'
+  - '.gitignore'
+  - '.gitattributes'
+
+# Configuration changes
+configuration:
+  - '**/*.cli'
+  - '**/*.xml'
+  - '**/*.properties'
+  - '**/*.yaml'
+  - '**/*.yml'
+  - '**/WEB-INF/*'
+  - 'charts/**/*'
+
+# Test changes
+tests:
+  - '**/src/test/**/*'
+  - '**/*Test.java'
+  - '**/*IT.java'
+
+# Individual quickstart examples
+quickstart-cmt:
+  - 'cmt/**/*'
+
+quickstart-ee-security:
+  - 'ee-security/**/*'
+
+quickstart-helloworld:
+  - 'helloworld/**/*'
+
+quickstart-helloworld-ws:
+  - 'helloworld-ws/**/*'
+
+quickstart-jaxrs-client:
+  - 'jaxrs-client/**/*'
+
+quickstart-kitchensink:
+  - 'kitchensink/**/*'
+
+quickstart-numberguess:
+  - 'numberguess/**/*'
+
+quickstart-remote-helloworld-mdb:
+  - 'remote-helloworld-mdb/**/*'
+
+quickstart-servlet-security:
+  - 'servlet-security/**/*'
+
+quickstart-temperature-converter:
+  - 'temperature-converter/**/*'
+
+quickstart-thread-racing:
+  - 'thread-racing/**/*'
+
+quickstart-todo-backend:
+  - 'todo-backend/**/*'
+
+quickstart-websocket-hello:
+  - 'websocket-hello/**/*'
+
+# Java source code changes (excluding tests)
+java-code:
+  - '**/src/main/**/*.java'
+
+# Web resources
+web-resources:
+  - '**/src/main/webapp/**/*'
+  - '**/*.html'
+  - '**/*.css'
+  - '**/*.js'
+
+# Dependencies
+dependencies:
+  - '**/pom.xml'

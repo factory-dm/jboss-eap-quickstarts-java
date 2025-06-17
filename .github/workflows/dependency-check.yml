@@ -1,0 +1,80 @@
+name: Dependency Check
+
+on:
+  schedule:
+    # Run weekly on Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:  # Allow manual triggering
+
+# Only run one dependency check at a time
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false  # Don't cancel in-progress runs as they're expensive
+
+jobs:
+  dependency-check:
+    name: OWASP Dependency Check
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 11
+        uses: actions/setup-java@v3
+        with:
+          java-version: 11
+          distribution: 'temurin'
+          cache: 'maven'  # Caches Maven dependencies
+
+      # Run OWASP Dependency Check
+      - name: Run OWASP Dependency Check
+        run: |
+          mvn -B org.owasp:dependency-check-maven:7.4.4:aggregate \
+            -DsuppressionFile=.github/dependency-check-suppressions.xml \
+            -DassemblyAnalyzerEnabled=false \
+            -DnuspecAnalyzerEnabled=false \
+            -DnodeAnalyzerEnabled=false \
+            -DnodeAuditAnalyzerEnabled=false \
+            -DretireJsAnalyzerEnabled=false \
+            -DcentralAnalyzerEnabled=true \
+            -DnexusAnalyzerEnabled=false
+
+      # Generate HTML report
+      - name: Generate Dependency Check Report
+        if: always()  # Run even if previous steps failed
+        run: |
+          mvn -B org.owasp:dependency-check-maven:7.4.4:aggregate \
+            -DsuppressionFile=.github/dependency-check-suppressions.xml \
+            -DskipProvidedScope=true \
+            -DskipRuntimeScope=false \
+            -DskipSystemScope=true \
+            -DskipTestScope=true \
+            -DassemblyAnalyzerEnabled=false \
+            -DnuspecAnalyzerEnabled=false \
+            -DnodeAnalyzerEnabled=false \
+            -DnodeAuditAnalyzerEnabled=false \
+            -DretireJsAnalyzerEnabled=false \
+            -DcentralAnalyzerEnabled=true \
+            -DnexusAnalyzerEnabled=false \
+            -Dformat=HTML
+
+      # Upload Dependency Check reports
+      - name: Upload Dependency Check Reports
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: dependency-check-reports
+          path: |
+            **/target/dependency-check-report.html
+            **/target/dependency-check-report.xml
+            **/target/dependency-check-report.json
+          retention-days: 7
+          
+      # Send notification if vulnerabilities found (optional)
+      - name: Check for vulnerabilities
+        if: success()
+        run: |
+          if grep -q "<severity>High</severity>" **/target/dependency-check-report.xml || grep -q "<severity>Critical</severity>" **/target/dependency-check-report.xml; then
+            echo "::warning ::High or Critical vulnerabilities found in dependency check"
+          fi

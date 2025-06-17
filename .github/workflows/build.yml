@@ -1,0 +1,62 @@
+name: Build and Test
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - '[0-9]+.[0-9]+.x'  # Matches version branches like 8.0.x
+  pull_request:
+    branches:
+      - main
+      - master
+      - '[0-9]+.[0-9]+.x'
+  workflow_dispatch:  # Allow manual triggering
+
+# Only run the latest job for each ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build and Test with JDK ${{ matrix.java }}
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        java: [11, 17]
+      fail-fast: false  # Continue with other matrix jobs if one fails
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up JDK ${{ matrix.java }}
+        uses: actions/setup-java@v3
+        with:
+          java-version: ${{ matrix.java }}
+          distribution: 'temurin'  # AdoptOpenJDK/Eclipse Temurin
+          cache: 'maven'  # Caches Maven dependencies
+
+      # Display Maven version for debugging
+      - name: Display Maven Version
+        run: mvn --version
+
+      # Build the project
+      - name: Build with Maven
+        run: mvn -B clean install -DskipTests
+        
+      # Run tests
+      - name: Run Tests
+        run: mvn -B test
+
+      # Upload build artifacts
+      - name: Upload Build Artifacts
+        if: success()
+        uses: actions/upload-artifact@v3
+        with:
+          name: build-artifacts-jdk-${{ matrix.java }}
+          path: |
+            **/target/*.jar
+            **/target/*.war
+          retention-days: 5
