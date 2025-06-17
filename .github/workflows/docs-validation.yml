@@ -1,0 +1,92 @@
+name: Documentation Validation
+
+on:
+  push:
+    branches:
+      - 8.0.x
+  pull_request:
+    branches:
+      - 8.0.x
+
+# Only run the latest job
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref || github.run_id }}'
+  cancel-in-progress: true
+
+jobs:
+  validate-asciidoc:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Set up Ruby
+      uses: ruby/setup-ruby@v1
+      with:
+        ruby-version: '3.2'
+        bundler-cache: true
+        
+    - name: Install AsciiDoctor and Validator
+      run: |
+        gem install asciidoctor
+        gem install asciidoctor-reducer
+        
+    - name: Find AsciiDoc Files
+      id: find-adoc
+      run: |
+        echo "Found the following AsciiDoc files:"
+        find . -name "*.adoc" -type f | tee asciidoc-files.txt
+        
+    - name: Validate AsciiDoc Files
+      id: validate
+      run: |
+        echo "Validating AsciiDoc files..."
+        mkdir -p validation-reports
+        
+        ERRORS_FOUND=0
+        while IFS= read -r file; do
+          echo "Checking $file"
+          # Use asciidoctor in verbose mode to catch syntax errors
+          if ! asciidoctor -v -a doctype=article -a toc=auto "$file" -o /dev/null 2> "validation-reports/$(basename "$file").log"; then
+            echo "::error file=$file::AsciiDoc validation failed for $file"
+            ERRORS_FOUND=1
+          fi
+        done < asciidoc-files.txt
+        
+        if [ $ERRORS_FOUND -eq 1 ]; then
+          echo "::error::AsciiDoc validation errors found. Check validation reports for details."
+          exit 1
+        fi
+      
+    - name: Upload Validation Reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: asciidoc-validation-reports
+        path: validation-reports/
+        retention-days: 5
+        
+    - name: Check README-source.adoc and README.adoc consistency
+      run: |
+        echo "Checking consistency between README-source.adoc and README.adoc files..."
+        
+        find . -name "README-source.adoc" -type f | while read -r source_file; do
+          dir=$(dirname "$source_file")
+          readme_file="$dir/README.adoc"
+          
+          if [ -f "$readme_file" ]; then
+            echo "Checking if $readme_file is up-to-date with $source_file"
+            
+            # Use asciidoctor-reducer to generate a temporary file
+            asciidoctor-reducer --preserve-conditionals "$source_file" -o "$dir/README.adoc.tmp"
+            
+            # Compare the temporary file with the actual README.adoc
+            # Ignore the first few lines which might contain the artifact ID added by the workflow
+            if ! diff -I "^ifdef::env-github" -I "^:artifactId:" -I "^endif::" "$dir/README.adoc.tmp" "$readme_file" > /dev/null; then
+              echo "::warning file=$readme_file::README.adoc is not in sync with README-source.adoc in $dir"
+            fi
+            
+            # Clean up the temporary file
+            rm "$dir/README.adoc.tmp"
+          fi
+        done

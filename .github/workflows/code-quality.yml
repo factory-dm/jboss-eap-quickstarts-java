@@ -1,0 +1,45 @@
+name: Code Quality
+
+on:
+  push:
+    branches:
+      - 8.0.x
+  pull_request:
+    branches:
+      - 8.0.x
+
+# Only run the latest job
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref || github.run_id }}'
+  cancel-in-progress: true
+
+jobs:
+  checkstyle:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Run Checkstyle
+      run: mvn -B checkstyle:checkstyle
+      
+    - name: Generate Checkstyle Report
+      if: success() || failure()
+      run: |
+        mkdir -p checkstyle-reports
+        find . -name "checkstyle-result.xml" -type f -exec cp {} checkstyle-reports/ \;
+      
+    - name: Upload Checkstyle Reports
+      if: success() || failure()
+      uses: actions/upload-artifact@v3
+      with:
+        name: checkstyle-reports
+        path: checkstyle-reports/
+        retention-days: 5

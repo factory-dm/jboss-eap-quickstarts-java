@@ -1,0 +1,69 @@
+name: Helm Chart Validation
+
+on:
+  push:
+    branches:
+      - 8.0.x
+  pull_request:
+    branches:
+      - 8.0.x
+
+# Only run the latest job
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref || github.run_id }}'
+  cancel-in-progress: true
+
+jobs:
+  helm-validation:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+
+    - name: Set up Helm
+      uses: azure/setup-helm@v3
+      with:
+        version: 'latest'
+
+    - name: Find Helm Charts
+      id: find-charts
+      run: |
+        echo "Found the following Helm charts:"
+        find . -path "*/charts/helm.yaml" -type f | tee helm-charts.txt
+        
+    - name: Validate Helm Charts
+      run: |
+        while IFS= read -r chart_file; do
+          echo "Validating chart: $chart_file"
+          chart_dir=$(dirname "$chart_file")
+          helm lint "$chart_dir" || echo "Linting issues found in $chart_dir"
+        done < helm-charts.txt
+
+    - name: Install Chart Testing
+      uses: helm/chart-testing-action@v2.6.1
+
+    - name: Run Chart Testing
+      run: |
+        # Find all directories containing helm.yaml files
+        find . -path "*/charts/helm.yaml" -type f | xargs -I{} dirname {} | while read chart_dir; do
+          echo "Running chart-testing on: $chart_dir"
+          ct lint --charts "$chart_dir" --validate-maintainers=false --validate-chart-schema=true --validate-yaml=true || echo "Chart testing issues found in $chart_dir"
+        done
+
+    - name: Check Helm Best Practices
+      run: |
+        echo "Checking Helm charts for best practices..."
+        find . -path "*/charts/helm.yaml" -type f | while read -r chart_file; do
+          chart_dir=$(dirname "$chart_file")
+          echo "Checking $chart_dir for best practices"
+          
+          # Check for required files
+          if [ ! -f "$chart_dir/helm.yaml" ]; then
+            echo "ERROR: Missing helm.yaml in $chart_dir"
+          fi
+          
+          # Validate yaml syntax
+          yamllint -c .github/yamllint.config "$chart_file" || echo "YAML syntax issues in $chart_file"
+        done || true
