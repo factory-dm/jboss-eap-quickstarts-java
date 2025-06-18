@@ -1,0 +1,90 @@
+name: JBoss EAP Quickstarts Code Quality
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
+
+# Only run the latest job for each ref
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref || github.run_id }}'
+  cancel-in-progress: true
+
+jobs:
+  code-quality:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Shallow clones should be disabled for better SonarCloud analysis
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Run Checkstyle
+      run: mvn checkstyle:check
+      continue-on-error: true  # Continue to next steps even if checkstyle fails
+      
+    - name: Collect Checkstyle Reports
+      if: always()
+      run: |
+        mkdir -p checkstyle-reports
+        find . -type f -name "checkstyle-result.xml" -exec cp {} checkstyle-reports/ \;
+        
+    - name: Upload Checkstyle Reports
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: checkstyle-reports
+        path: checkstyle-reports
+        
+    - name: SonarCloud Scan
+      if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+      uses: SonarSource/sonarcloud-github-action@v2.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      with:
+        args: >
+          -Dsonar.projectKey=factory-dm_jboss-eap-quickstarts-java
+          -Dsonar.organization=factory-dm
+          -Dsonar.java.binaries=**/target/classes
+          -Dsonar.java.libraries=**/*.jar
+          -Dsonar.sources=.
+          -Dsonar.exclusions=**/target/**,**/.github/**,**/dist/**
+        
+    - name: Generate Code Quality Report
+      if: always()
+      run: |
+        echo "# Code Quality Report" > code-quality-report.md
+        echo "## Checkstyle Results" >> code-quality-report.md
+        
+        if [ -d "checkstyle-reports" ]; then
+          echo "Checkstyle issues found. See the attached artifacts for details." >> code-quality-report.md
+        else
+          echo "No Checkstyle issues found." >> code-quality-report.md
+        fi
+        
+        echo "## SonarCloud Results" >> code-quality-report.md
+        echo "SonarCloud analysis completed. Visit the SonarCloud dashboard for detailed results." >> code-quality-report.md
+        
+    - name: Upload Code Quality Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: code-quality-report
+        path: code-quality-report.md

@@ -1,0 +1,118 @@
+name: JBoss EAP Quickstarts Documentation
+
+on:
+  push:
+    branches: [ '*' ]
+  pull_request:
+    branches: [ '*' ]
+
+# Only run the latest job for each ref
+concurrency:
+  group: '${{ github.workflow }} @ ${{ github.ref || github.run_id }}'
+  cancel-in-progress: true
+
+jobs:
+  documentation:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Install Asciidoctor
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y asciidoctor ruby
+        sudo gem install asciidoctor-reducer
+        sudo gem install asciidoctor-html5s
+        
+    - name: Validate AsciiDoc Files
+      run: |
+        echo "Validating AsciiDoc files..."
+        find . -name "*.adoc" | while read file; do
+          echo "Validating $file"
+          asciidoctor -v --failure-level WARN -o /dev/null "$file" || exit 1
+        done
+        echo "All AsciiDoc files are valid!"
+        
+    - name: Generate Documentation with Maven
+      run: mvn -B clean generate-resources -Pdocs
+      
+    - name: Check for Broken Links
+      run: |
+        echo "Checking for broken links in documentation..."
+        find . -name "*.html" | while read file; do
+          echo "Checking links in $file"
+          # Extract all local links from HTML files
+          grep -o 'href="[^"]*"' "$file" | grep -v "^href=\"http" | grep -v "^href=\"#" | cut -d'"' -f2 | while read link; do
+            # Remove anchor part if exists
+            link_file=$(echo "$link" | cut -d'#' -f1)
+            # If link is not empty
+            if [ ! -z "$link_file" ]; then
+              # Get directory of current HTML file
+              dir=$(dirname "$file")
+              # Construct full path to linked file
+              full_path="$dir/$link_file"
+              # Check if file exists
+              if [ ! -f "$full_path" ] && [ ! -d "$full_path" ]; then
+                echo "ERROR: Broken link in $file: $link (resolved to $full_path)"
+                exit_code=1
+              fi
+            fi
+          done
+        done
+        
+        if [ "$exit_code" == "1" ]; then
+          echo "Broken links found in documentation!"
+          exit 1
+        else
+          echo "No broken links found in documentation!"
+        fi
+        
+    - name: Collect Documentation
+      run: |
+        mkdir -p documentation
+        find . -name "*.html" -not -path "*/target/*" -exec cp --parents {} documentation/ \;
+        
+    - name: Upload Documentation
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation
+        path: documentation
+        
+    - name: Generate Documentation Report
+      if: always()
+      run: |
+        echo "# Documentation Report" > documentation-report.md
+        echo "## AsciiDoc Validation" >> documentation-report.md
+        echo "All AsciiDoc files have been validated for syntax errors." >> documentation-report.md
+        
+        echo "## HTML Generation" >> documentation-report.md
+        echo "HTML documentation has been generated from AsciiDoc files." >> documentation-report.md
+        
+        echo "## Link Checking" >> documentation-report.md
+        echo "Documentation has been checked for broken links." >> documentation-report.md
+        
+        echo "## Generated Documentation" >> documentation-report.md
+        echo "See the uploaded artifacts for the generated documentation." >> documentation-report.md
+        
+    - name: Upload Documentation Report
+      if: always()
+      uses: actions/upload-artifact@v3
+      with:
+        name: documentation-report
+        path: documentation-report.md

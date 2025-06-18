@@ -1,0 +1,114 @@
+name: JBoss EAP Quickstarts Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      release_name:
+        description: 'Release name'
+        required: true
+        default: 'JBoss EAP Quickstarts Release'
+      prerelease:
+        description: 'Is this a pre-release?'
+        type: boolean
+        default: false
+
+# Only run one release workflow at a time
+concurrency:
+  group: '${{ github.workflow }}-release'
+  cancel-in-progress: false
+
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0  # Required for tag information
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Cache Maven packages
+      uses: actions/cache@v3
+      with:
+        path: ~/.m2
+        key: ${{ runner.os }}-m2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-m2
+        
+    - name: Set Release Version
+      id: release_version
+      run: |
+        if [[ $GITHUB_REF == refs/tags/v* ]]; then
+          VERSION=${GITHUB_REF#refs/tags/v}
+        else
+          VERSION=$(date +'%Y.%m.%d')-SNAPSHOT
+        fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
+    - name: Build Standard Artifacts
+      run: mvn -B clean package
+      
+    - name: Build OpenShift Artifacts
+      run: mvn -B clean package -Popenshift
+      
+    - name: Generate Documentation
+      run: mvn -B generate-resources -Pdocs
+      
+    - name: Prepare Release Assets
+      run: |
+        mkdir -p release-assets/standard
+        mkdir -p release-assets/openshift
+        mkdir -p release-assets/docs
+        
+        # Copy standard artifacts
+        find . -name "*.war" -not -path "*/target/openshift/*" -exec cp {} release-assets/standard/ \;
+        find . -name "*.jar" -not -path "*/target/classes/*" -not -path "*/target/test-classes/*" -not -path "*/target/openshift/*" -exec cp {} release-assets/standard/ \;
+        
+        # Copy OpenShift artifacts
+        find . -path "*/target/openshift/*" -name "*.war" -exec cp {} release-assets/openshift/ \;
+        find . -path "*/target/openshift/*" -name "*.jar" -exec cp {} release-assets/openshift/ \;
+        
+        # Copy documentation
+        find . -name "README.html" -exec cp --parents {} release-assets/docs/ \;
+        
+        # Create archives
+        cd release-assets
+        zip -r ../jboss-eap-quickstarts-standard-${{ env.VERSION }}.zip standard/
+        zip -r ../jboss-eap-quickstarts-openshift-${{ env.VERSION }}.zip openshift/
+        zip -r ../jboss-eap-quickstarts-docs-${{ env.VERSION }}.zip docs/
+        cd ..
+        
+    - name: Create Release
+      id: create_release
+      uses: softprops/action-gh-release@v1
+      with:
+        name: ${{ github.event.inputs.release_name || format('JBoss EAP Quickstarts v{0}', steps.release_version.outputs.version) }}
+        draft: false
+        prerelease: ${{ github.event.inputs.prerelease || false }}
+        files: |
+          jboss-eap-quickstarts-standard-${{ env.VERSION }}.zip
+          jboss-eap-quickstarts-openshift-${{ env.VERSION }}.zip
+          jboss-eap-quickstarts-docs-${{ env.VERSION }}.zip
+        generate_release_notes: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        
+    - name: Upload Release Assets as Artifacts
+      uses: actions/upload-artifact@v3
+      with:
+        name: release-assets
+        path: |
+          jboss-eap-quickstarts-standard-${{ env.VERSION }}.zip
+          jboss-eap-quickstarts-openshift-${{ env.VERSION }}.zip
+          jboss-eap-quickstarts-docs-${{ env.VERSION }}.zip
+        retention-days: 7

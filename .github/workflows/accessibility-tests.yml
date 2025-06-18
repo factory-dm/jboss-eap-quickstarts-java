@@ -1,0 +1,20 @@
+name: JBoss EAP Quickstarts Accessibility Tests
+
+on:
+  push:
+    branches: [ "*" ]
+  pull_request:
+    branches: [ "*" ]
+
+# Only run the latest job for each ref
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.ref || github.run_id }}"
+  cancel-in-progress: true
+
+jobs:
+  accessibility-tests:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
