@@ -1,0 +1,104 @@
+name: Test Coverage
+
+on:
+  push:
+    branches: [ main, feature/**, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+        
+    - name: Build with Maven and run tests
+      run: |
+        mvn clean verify -pl kitchensink -am
+        
+    - name: Generate JaCoCo Coverage Report
+      run: |
+        mvn jacoco:report -pl kitchensink
+        
+    - name: Check Coverage Threshold
+      run: |
+        mvn jacoco:check -pl kitchensink
+      
+    - name: Upload Coverage Report
+      uses: actions/upload-artifact@v3
+      with:
+        name: jacoco-report
+        path: |
+          kitchensink/target/site/jacoco/
+          
+    - name: Print Coverage Summary
+      run: |
+        echo "=== JaCoCo Coverage Summary ==="
+        REPORT_FILE=kitchensink/target/site/jacoco/index.html
+        if [ -f "$REPORT_FILE" ]; then
+          COVERAGE=$(grep -o 'Total[^%]*%' $REPORT_FILE | head -1 | grep -o '[0-9]*%')
+          echo "Overall coverage: $COVERAGE"
+          
+          # Check if coverage is below 90%
+          COVERAGE_NUM=$(echo $COVERAGE | sed 's/%//')
+          if [ "$COVERAGE_NUM" -lt "90" ]; then
+            echo "::warning::Coverage is below 90% threshold: $COVERAGE"
+          else
+            echo "✅ Coverage meets or exceeds 90% threshold: $COVERAGE"
+          fi
+        else
+          echo "Coverage report not found"
+          exit 1
+        fi
+        
+  coverage-comment:
+    needs: build-and-test
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Download Coverage Report
+      uses: actions/download-artifact@v3
+      with:
+        name: jacoco-report
+        path: jacoco-report
+        
+    - name: Comment on PR with Coverage
+      uses: actions/github-script@v6
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        script: |
+          const fs = require('fs');
+          try {
+            const reportPath = 'jacoco-report/index.html';
+            const reportContent = fs.readFileSync(reportPath, 'utf8');
+            const coverageMatch = reportContent.match(/Total[^%]*%/);
+            const coverage = coverageMatch ? coverageMatch[0].match(/[0-9]+%/)[0] : 'unknown';
+            
+            const comment = `## Code Coverage Report
+            
+            Overall coverage: **${coverage}**
+            
+            ${coverage.replace('%', '') < 90 ? '⚠️ Coverage is below the 90% threshold!' : '✅ Coverage meets or exceeds the 90% threshold!'}
+            
+            [Full Report](${process.env.GITHUB_SERVER_URL}/${process.env.GITHUB_REPOSITORY}/actions/runs/${process.env.GITHUB_RUN_ID})
+            `;
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: comment
+            });
+          } catch (error) {
+            console.error('Error creating coverage comment:', error);
+          }
