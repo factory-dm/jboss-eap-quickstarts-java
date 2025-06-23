@@ -1,0 +1,31 @@
+version: '3.8'
+
+services:
+  kitchensink-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: kitchensink/kitchensink-spring:latest
+    container_name: kitchensink-spring
+    ports:
+      - "8080:8080"  # Application port
+      - "8082:8082"  # Remote debugging port (optional)
+    environment:
+      - SPRING_PROFILES_ACTIVE=dev
+      - SERVER_PORT=8080
+      - JAVA_TOOL_OPTIONS=-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:8082
+      # H2 Database configuration
+      - SPRING_DATASOURCE_URL=jdbc:h2:mem:kitchensinkdb;DB_CLOSE_DELAY=-1
+      - SPRING_DATASOURCE_USERNAME=sa
+      - SPRING_DATASOURCE_PASSWORD=
+      - SPRING_H2_CONSOLE_ENABLED=true
+      - SPRING_H2_CONSOLE_SETTINGS_WEB_ALLOW_OTHERS=true
+    volumes:
+      - ./target:/app/target  # Mount the target directory to easily update the JAR
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/kitchensink/actuator/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    restart: unless-stopped

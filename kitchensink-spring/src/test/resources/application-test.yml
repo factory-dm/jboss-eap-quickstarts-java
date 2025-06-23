@@ -1,0 +1,55 @@
+# Spring Boot Test Configuration for Kitchensink Application
+spring:
+  # Test profile specific settings
+  config:
+    activate:
+      on-profile: test
+      
+  # Disable devtools in tests
+  devtools:
+    add-properties: false
+    
+  # JPA / Hibernate Configuration for testing
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: create-drop
+    properties:
+      hibernate:
+        format_sql: true
+        dialect: org.hibernate.dialect.H2Dialect
+        
+  # H2 Database configuration for testing
+  datasource:
+    url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    username: sa
+    password: 
+    driver-class-name: org.h2.Driver
+    
+  # Disable H2 Console in tests
+  h2:
+    console:
+      enabled: false
+      
+  # Disable open-in-view to avoid warning messages during tests
+  jpa.open-in-view: false
+      
+# Server port for testing
+server:
+  port: 0
+  servlet:
+    context-path: /kitchensink
+  
+# Logging configuration for testing
+logging:
+  level:
+    root: WARN
+    org.springframework: WARN
+    org.hibernate: INFO
+    org.jboss.as.quickstarts: DEBUG
+    org.springframework.test: INFO
+    
+# Disable security for tests
+security:
+  basic:
+    enabled: false
