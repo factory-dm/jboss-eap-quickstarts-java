@@ -34,11 +34,25 @@
                     [Template content will be inserted here]
          </ui:insert>
         </div>
-        <div id="aside">
+        <!-- Complementary content / resources -->
+        <div id="aside" role="complementary" aria-label="Additional Resources">
             <p>Learn more about Red Hat JBoss Enterprise Application Platform.</p>
             <ul>
-                <li><a href="https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/">Documentation</a></li>
-                <li><a href="http://www.redhat.com/en/technologies/jboss-middleware/application-platform">Product Information</a></li>
+                <!-- tabindex continues from main content (1-4 defined in index.xhtml) -->
+                <li>
+                    <a href="https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/"
+                       tabindex="5"
+                       aria-label="JBoss EAP Documentation (tab to open)">
+                        Documentation
+                    </a>
+                </li>
+                <li>
+                    <a href="http://www.redhat.com/en/technologies/jboss-middleware/application-platform"
+                       tabindex="6"
+                       aria-label="JBoss EAP Product Information (tab to open)">
+                        Product Information
+                    </a>
+                </li>
             </ul>
         </div>
         <div id="footer">
