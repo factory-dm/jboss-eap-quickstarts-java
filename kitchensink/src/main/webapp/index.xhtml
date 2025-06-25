@@ -28,30 +28,58 @@
                 Application.</p>
         </div>
 
+        <!-- Keyboard accessibility help text (FAC-22) -->
+        <p class="keyboard-help">
+            <strong>Keyboard shortcuts:</strong>
+            Press <kbd>Alt</kbd>+<kbd>S</kbd> to <em>Register</em>,
+            <kbd>Alt</kbd>+<kbd>C</kbd> to <em>Clear</em> the form.
+            You can also use the <kbd>Tab</kbd> key to move between fields
+            and buttons.
+        </p>
+
         <h:form id="reg">
             <h2>Member Registration</h2>
             <p>Enforces annotation-based constraints defined on the
                 model class.</p>
             <h:panelGrid columns="3" columnClasses="titleCell">
                 <h:outputLabel for="name" value="Name:" />
-                <h:inputText id="name" value="#{newMember.name}" />
+                <h:inputText id="name"
+                             value="#{newMember.name}"
+                             aria-label="Name"
+                             tabindex="1" />
                 <h:message for="name" errorClass="invalid" />
 
                 <h:outputLabel for="email" value="Email:" />
-                <h:inputText id="email" value="#{newMember.email}" />
+                <h:inputText id="email"
+                             value="#{newMember.email}"
+                             aria-label="Email"
+                             tabindex="2" />
                 <h:message for="email" errorClass="invalid" />
 
                 <h:outputLabel for="phoneNumber" value="Phone #:" />
                 <h:inputText id="phoneNumber"
-                             value="#{newMember.phoneNumber}" />
+                             value="#{newMember.phoneNumber}"
+                             aria-label="Phone number"
+                             tabindex="3" />
                 <h:message for="phoneNumber" errorClass="invalid" />
             </h:panelGrid>
 
             <p>
-                <h:panelGrid columns="2">
+                <h:panelGrid columns="3">
                     <h:commandButton id="register"
                                      action="#{memberController.register}"
-                                     value="Register" styleClass="register" />
+                                     value="Register"
+                                     styleClass="register"
+                                     accesskey="s"
+                                     tabindex="4" />
+                    <!-- Clear form button -->
+                    <h:commandButton id="clear"
+                                     value="Clear"
+                                     onclick="document.getElementById('reg').reset();return false;"
+                                     immediate="true"
+                                     styleClass="register"
+                                     accesskey="c"
+                                     tabindex="5" />
                     <h:messages styleClass="messages"
                                 errorClass="invalid" infoClass="valid"
                                 warnClass="warning" globalOnly="true" />
