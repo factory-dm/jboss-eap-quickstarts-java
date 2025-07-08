@@ -17,31 +17,37 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+    xmlns:h="jakarta.faces.html"
+    xmlns:ui="jakarta.faces.facelets">
 <h:head>
     <title>kitchensink</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <h:outputStylesheet name="css/screen.css" />
 </h:head>
 <h:body>
+    <!-- Skip navigation link for keyboard users -->
+    <a href="#content" class="skip-link">Skip to main content</a>
+
     <div id="container">
         <div class="dualbrand">
-            <img src="resources/gfx/rhjb_eap_logo.png" width="300" height="175" />
+            <img src="resources/gfx/rhjb_eap_logo.png"
+                 width="300"
+                 height="175"
+                 alt="Red Hat JBoss Enterprise Application Platform Logo" />
         </div>
-        <div id="content">
+        <div id="content" role="main">
             <ui:insert name="content">
                     [Template content will be inserted here]
          </ui:insert>
         </div>
-        <div id="aside">
+        <div id="aside" role="complementary">
             <p>Learn more about Red Hat JBoss Enterprise Application Platform.</p>
             <ul>
                 <li><a href="https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/">Documentation</a></li>
                 <li><a href="http://www.redhat.com/en/technologies/jboss-middleware/application-platform">Product Information</a></li>
             </ul>
         </div>
-        <div id="footer">
+        <div id="footer" role="contentinfo">
             <p>
                 This project was generated from a Maven archetype from
                 JBoss.<br />

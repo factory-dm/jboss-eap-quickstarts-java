@@ -200,3 +200,73 @@ input {
   color:#3883ce;
   text-decoration:none; 
 }
+
+/* ============================================================
+   Accessibility & Keyboard Navigation Enhancements (FAC-22)
+   ------------------------------------------------------------
+   These styles provide clear, consistent focus indicators for
+   all interactive elements, ensuring the application is fully
+   navigable via keyboard.  The outline color (#005fcc) offers
+   sufficient contrast on both light and dark backgrounds.
+   ============================================================ */
+
+/* Base focus styles for common interactive elements */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus {
+  outline: 3px solid #005fcc;   /* Visible blue outline */
+  outline-offset: 2px;          /* Gap between element and outline */
+}
+
+/* Prefer :focus-visible where supported to avoid focus rings on mouse click */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid #005fcc;
+  outline-offset: 2px;
+}
+
+/* Enhance accessibility for links within tables */
+.simpletablestyle td a:focus,
+.simpletablestyle td a:focus-visible {
+  color: #005fcc;
+  text-decoration: underline;
+}
+
+/* Register button specific focus treatment */
+.register:focus,
+.register:focus-visible {
+  outline: 3px solid #005fcc;
+  outline-offset: 4px;
+}
+
+/* Skip-to-content link — initially off-screen, visible on focus */
+.skip-link {
+  position: absolute;
+  left: -999px;
+  top: auto;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+
+.skip-link:focus,
+.skip-link:active {
+  left: 10px;
+  top: 10px;
+  width: auto;
+  height: auto;
+  overflow: visible;
+  background: #ffffff;
+  padding: 8px 16px;
+  border: 3px solid #005fcc;
+  text-decoration: none;
+  font-weight: bold;
+  z-index: 1000;
+}
