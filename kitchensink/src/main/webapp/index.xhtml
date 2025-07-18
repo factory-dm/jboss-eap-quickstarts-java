@@ -34,16 +34,19 @@
                 model class.</p>
             <h:panelGrid columns="3" columnClasses="titleCell">
                 <h:outputLabel for="name" value="Name:" />
-                <h:inputText id="name" value="#{newMember.name}" />
+                <h:inputText id="name" value="#{newMember.name}" 
+                             title="Name field (Alt+N to focus)" />
                 <h:message for="name" errorClass="invalid" />
 
                 <h:outputLabel for="email" value="Email:" />
-                <h:inputText id="email" value="#{newMember.email}" />
+                <h:inputText id="email" value="#{newMember.email}" 
+                             title="Email field (Alt+E to focus)" />
                 <h:message for="email" errorClass="invalid" />
 
                 <h:outputLabel for="phoneNumber" value="Phone #:" />
                 <h:inputText id="phoneNumber"
-                             value="#{newMember.phoneNumber}" />
+                             value="#{newMember.phoneNumber}" 
+                             title="Phone number field (Alt+P to focus)" />
                 <h:message for="phoneNumber" errorClass="invalid" />
             </h:panelGrid>
 
@@ -51,7 +54,8 @@
                 <h:panelGrid columns="2">
                     <h:commandButton id="register"
                                      action="#{memberController.register}"
-                                     value="Register" styleClass="register" />
+                                     value="Register" styleClass="register"
+                                     title="Register new member (Alt+R to focus)" />
                     <h:messages styleClass="messages"
                                 errorClass="invalid" infoClass="valid"
                                 warnClass="warning" globalOnly="true" />
@@ -83,12 +87,14 @@
             </h:column>
             <h:column>
                 <f:facet name="header">REST URL</f:facet>
-                <a
-                    href="#{request.contextPath}/rest/members/#{_member.id}">/rest/members/#{_member.id}</a>
+                <a href="#{request.contextPath}/rest/members/#{_member.id}"
+                   role="link"
+                   title="REST endpoint for member #{_member.id}">/rest/members/#{_member.id}</a>
             </h:column>
             <f:facet name="footer">
-                REST URL for all members: <a
-                    href="#{request.contextPath}/rest/members">/rest/members</a>
+                REST URL for all members: <a href="#{request.contextPath}/rest/members"
+                                             role="link"
+                                             title="REST endpoint for all members">/rest/members</a>
             </f:facet>
         </h:dataTable>
     </ui:define>

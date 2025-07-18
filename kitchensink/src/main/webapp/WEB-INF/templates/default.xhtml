@@ -29,7 +29,10 @@
         <div class="dualbrand">
             <img src="resources/gfx/rhjb_eap_logo.png" width="300" height="175" />
         </div>
-        <div id="content">
+        <!-- Main content area is the target of the skip-to-content link.
+             tabindex=\"-1\" allows it to receive programmatic focus when
+             users activate the skip link (per WCAG recommendations). -->
+        <div id="content" tabindex="-1">
             <ui:insert name="content">
                     [Template content will be inserted here]
          </ui:insert>
@@ -48,5 +51,7 @@
             </p>
         </div>
     </div>
+    <!-- Keyboard accessibility enhancements -->
+    <h:outputScript library="js" name="keyboard-nav.js" target="body"/>
 </h:body>
 </html>

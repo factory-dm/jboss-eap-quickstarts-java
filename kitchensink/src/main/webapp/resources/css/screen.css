@@ -200,3 +200,41 @@ input {
   color:#3883ce;
   text-decoration:none; 
 }
+
+/* -------------------------------------------------------------------
+ * WCAG-compliant keyboard focus indicators
+ * -------------------------------------------------------------------
+ * Provide a highly visible focus outline for all typical interactive
+ * elements to ensure keyboard users can easily see where focus is.
+ * Uses a 2px solid outline with sufficient colour contrast (DarkBlue)
+ * and a small outline-offset so it does not affect layout.
+ * These styles are intentionally distinct from :hover styles.
+ */
+
+/* Generic rule for most focusable elements */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus,
+[role='button']:focus {
+  outline: 2px solid #003c8c; /* dark blue, meets 3:1 contrast on white */
+  outline-offset: 2px;
+}
+
+/* Ensure custom styled button (.register) also gets focus indicator */
+.register:focus {
+  /* inherit generic outline */
+  outline: 2px solid #003c8c;
+  outline-offset: 2px;
+}
+
+/* Remove default outline only on mouse interaction, preserve for keyboard */
+a:hover,
+button:hover,
+input:hover,
+select:hover,
+textarea:hover {
+  /* keep existing hover styles; do not remove outline so focus remains */
+}
