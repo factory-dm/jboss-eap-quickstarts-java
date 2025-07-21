@@ -200,3 +200,64 @@ input {
   color:#3883ce;
   text-decoration:none; 
 }
+
+/* ================================================================
+ *  Accessibility: Keyboard Focus Styles
+ *  These styles improve keyboard navigation and satisfy WCAG 2.1
+ *  guidelines (Success Criterion 2.4.7 – Focus Visible).
+ *  ---------------------------------------------------------------
+ *  We intentionally use a high-contrast outline that is easily
+ *  distinguishable from hover states.  The default browser focus
+ *  outline is removed only when we supply an accessible
+ *  replacement.
+ * ================================================================ */
+
+/* Generic interactive elements */
+a:focus,
+button:focus,
+input:focus,
+select:focus,
+textarea:focus,
+[tabindex]:focus,
+.register:focus {
+  outline: 3px solid #005fcc;   /* strong colour contrast */
+  outline-offset: 2px;          /* do not overlap element */
+}
+
+/* Keep link hover colour distinct but do not override focus outline */
+a:hover,
+a:active {
+  text-decoration: underline;
+}
+
+/* ------------------------------------------------
+ * Skip-to-content link (will be added in markup)
+ * ------------------------------------------------ */
+.skip-link {
+  position: absolute;
+  top: -40px;                  /* hide off-screen */
+  left: 0;
+  background: #ffffff;
+  color: #005fcc;
+  padding: 8px 16px;
+  z-index: 1000;
+  text-decoration: none;
+  font-weight: bold;
+  border: 2px solid #005fcc;
+}
+
+.skip-link:focus,
+.skip-link:active {
+  top: 10px;                   /* reveal when focused */
+}
+
+/* ------------------------------------------------
+ * Focus management helper class – add via JSF/JS
+ * ------------------------------------------------ */
+.visually-hidden {
+  position: absolute !important;
+  height: 1px; width: 1px;
+  overflow: hidden;
+  clip: rect(1px, 1px, 1px, 1px);
+  white-space: nowrap;         /* prevent line breaks */
+}

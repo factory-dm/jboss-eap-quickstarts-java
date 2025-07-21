@@ -29,34 +29,46 @@
         </div>
 
         <h:form id="reg">
-            <h2>Member Registration</h2>
-            <p>Enforces annotation-based constraints defined on the
-                model class.</p>
-            <h:panelGrid columns="3" columnClasses="titleCell">
+            <!-- Semantic grouping of registration controls -->
+            <fieldset>
+                <legend>
+                    <h2 id="memberRegHdr">Member Registration</h2>
+                </legend>
+                <p id="memberRegDesc">Enforces annotation-based constraints defined on the
+                    model class.</p>
+            <h:panelGrid columns="3" columnClasses="titleCell"
+                         aria-labelledby="memberRegHdr"
+                         aria-describedby="memberRegDesc">
                 <h:outputLabel for="name" value="Name:" />
-                <h:inputText id="name" value="#{newMember.name}" />
-                <h:message for="name" errorClass="invalid" />
+                <h:inputText id="name" value="#{newMember.name}"
+                             aria-describedby="msgName"/>
+                <h:message id="msgName" for="name" errorClass="invalid" />
 
                 <h:outputLabel for="email" value="Email:" />
-                <h:inputText id="email" value="#{newMember.email}" />
-                <h:message for="email" errorClass="invalid" />
+                <h:inputText id="email" value="#{newMember.email}"
+                             aria-describedby="msgEmail"/>
+                <h:message id="msgEmail" for="email" errorClass="invalid" />
 
                 <h:outputLabel for="phoneNumber" value="Phone #:" />
                 <h:inputText id="phoneNumber"
-                             value="#{newMember.phoneNumber}" />
-                <h:message for="phoneNumber" errorClass="invalid" />
+                             value="#{newMember.phoneNumber}"
+                             aria-describedby="msgPhone"/>
+                <h:message id="msgPhone" for="phoneNumber" errorClass="invalid" />
             </h:panelGrid>
 
             <p>
                 <h:panelGrid columns="2">
                     <h:commandButton id="register"
                                      action="#{memberController.register}"
-                                     value="Register" styleClass="register" />
-                    <h:messages styleClass="messages"
+                                     value="Register" styleClass="register"
+                                     aria-label="Submit registration form"/>
+                    <h:messages id="globalMsgs" styleClass="messages"
                                 errorClass="invalid" infoClass="valid"
-                                warnClass="warning" globalOnly="true" />
+                                warnClass="warning" globalOnly="true"
+                                aria-live="polite"/>
                 </h:panelGrid>
             </p>
+            </fieldset>
         </h:form>
         <h2>Members</h2>
         <h:panelGroup rendered="#{empty members}">
@@ -64,7 +76,9 @@
         </h:panelGroup>
         <h:dataTable var="_member" value="#{members}"
                      rendered="#{not empty members}"
-                     styleClass="simpletablestyle">
+                     styleClass="simpletablestyle"
+                     tabindex="0"
+                     aria-label="Registered members">
             <h:column>
                 <f:facet name="header">Id</f:facet>
                     #{_member.id}

@@ -14,8 +14,7 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!DOCTYPE html> <!-- HTML5 -->
 <html xmlns="http://www.w3.org/1999/xhtml"
     xmlns:h="http://java.sun.com/jsf/html"
     xmlns:ui="http://java.sun.com/jsf/facelets">
@@ -25,28 +24,56 @@
     <h:outputStylesheet name="css/screen.css" />
 </h:head>
 <h:body>
+    <!-- Skip link for improved keyboard navigation -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <div id="container">
         <div class="dualbrand">
             <img src="resources/gfx/rhjb_eap_logo.png" width="300" height="175" />
         </div>
-        <div id="content">
+        <!-- Main application content -->
+        <div id="main-content" role="main" tabindex="-1">
             <ui:insert name="content">
                     [Template content will be inserted here]
          </ui:insert>
         </div>
-        <div id="aside">
+        <div id="aside" role="complementary" aria-label="Additional resources">
             <p>Learn more about Red Hat JBoss Enterprise Application Platform.</p>
             <ul>
                 <li><a href="https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/">Documentation</a></li>
                 <li><a href="http://www.redhat.com/en/technologies/jboss-middleware/application-platform">Product Information</a></li>
+                <!-- Keyboard navigation help link -->
+                <li>
+                    <a href="#{request.contextPath}/resources/keyboard-help.html"
+                       aria-label="Open keyboard navigation help">
+                        Keyboard Navigation Guide
+                    </a>
+                </li>
             </ul>
         </div>
-        <div id="footer">
+        <div id="footer" role="contentinfo" tabindex="0">
             <p>
                 This project was generated from a Maven archetype from
                 JBoss.<br />
+                <strong>Keyboard shortcut:</strong> Press <kbd>Alt</kbd> + <kbd>R</kbd> (or <kbd>⌥ Option</kbd> + <kbd>R</kbd> on macOS) to jump directly to the “Register” button.
             </p>
         </div>
     </div>
+    <!-- Keyboard-shortcut helper script -->
+    <script type="text/javascript">
+        (function () {
+            document.addEventListener('keydown', function (e) {
+                /* Alt+R focuses the Register button if present */
+                if (e.altKey && !e.shiftKey && !e.ctrlKey && !e.metaKey && (e.key === 'r' || e.key === 'R')) {
+                    var btn = document.getElementById('reg:register');
+                    if (btn) {
+                        btn.focus();
+                        e.preventDefault();
+                    }
+                }
+            }, true);
+        }());
+    </script>
+    <!-- Enhanced keyboard navigation script -->
+    <script src="resources/js/keyboard-nav.js" defer="defer"></script>
 </h:body>
 </html>

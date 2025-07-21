@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Keyboard Navigation Guide - KitchenSink Application</title>
+    <style>
+        body {
+            font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+            line-height: 1.6;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #363636;
+        }
+        h1, h2, h3 {
+            color: #243446;
+        }
+        .keyboard-key {
+            display: inline-block;
+            padding: 3px 5px;
+            font-size: 0.9em;
+            font-weight: bold;
+            background-color: #f5f5f5;
+            border: 1px solid #ccc;
+            border-radius: 3px;
+            box-shadow: 0 1px 0 rgba(0,0,0,0.2);
+            margin: 0 2px;
+        }
+        .focus-example {
+            border: 3px solid #005fcc;
+            display: inline-block;
+            padding: 5px 10px;
+            margin: 5px 0;
+        }
+        .skip-example {
+            position: relative;
+            display: block;
+            padding: 8px 16px;
+            background: #ffffff;
+            color: #005fcc;
+            border: 2px solid #005fcc;
+            font-weight: bold;
+            width: fit-content;
+            margin: 10px 0;
+        }
+        section {
+            margin-bottom: 30px;
+        }
+        ul {
+            padding-left: 25px;
+        }
+        li {
+            margin-bottom: 10px;
+        }
+        .note {
+            background-color: #f8f8f8;
+            border-left: 4px solid #005fcc;
+            padding: 10px;
+            margin: 15px 0;
+        }
+        table {
+            border-collapse: collapse;
+            width: 100%;
+            margin: 15px 0;
+        }
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Keyboard Navigation Guide</h1>
+        <p>This guide explains how to navigate the KitchenSink application using only your keyboard.</p>
+    </header>
+
+    <main>
+        <section id="basics">
+            <h2>Basic Keyboard Navigation</h2>
+            <p>You can navigate through the KitchenSink application using these basic keyboard controls:</p>
+            <ul>
+                <li><span class="keyboard-key">Tab</span>: Move forward to the next focusable element</li>
+                <li><span class="keyboard-key">Shift</span> + <span class="keyboard-key">Tab</span>: Move backward to the previous focusable element</li>
+                <li><span class="keyboard-key">Enter</span>: Activate buttons, links, or submit forms</li>
+                <li><span class="keyboard-key">Space</span>: Activate buttons or toggle checkboxes</li>
+                <li><span class="keyboard-key">Arrow keys</span>: Navigate within some components like tables</li>
+            </ul>
+            <p class="note">Note: The tab order follows a logical sequence through the page, moving from top to bottom and left to right.</p>
+        </section>
+
+        <section id="shortcuts">
+            <h2>Keyboard Shortcuts</h2>
+            <p>The following keyboard shortcuts are available in the KitchenSink application:</p>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Shortcut</th>
+                        <th>Function</th>
+                        <th>Description</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="keyboard-key">Alt</span> + <span class="keyboard-key">R</span></td>
+                        <td>Focus Register Button</td>
+                        <td>Quickly jump to the Register button in the member registration form</td>
+                    </tr>
+                    <tr>
+                        <td><span class="keyboard-key">Alt</span> + <span class="keyboard-key">1</span></td>
+                        <td>Skip to Main Content</td>
+                        <td>Same function as the skip link, jumps directly to the main content area</td>
+                    </tr>
+                </tbody>
+            </table>
+            <p class="note">Note: On macOS, use <span class="keyboard-key">⌥ Option</span> instead of <span class="keyboard-key">Alt</span></p>
+        </section>
+
+        <section id="skip-link">
+            <h2>Skip to Content Link</h2>
+            <p>At the beginning of each page, there is a "Skip to main content" link that allows you to bypass the navigation and header sections:</p>
+            <div class="skip-example">Skip to main content</div>
+            <p>This link is initially hidden but becomes visible when you:</p>
+            <ol>
+                <li>First load the page and press <span class="keyboard-key">Tab</span></li>
+                <li>Or press <span class="keyboard-key">Tab</span> when focus is at the top of the page</li>
+            </ol>
+            <p>Pressing <span class="keyboard-key">Enter</span> when this link has focus will take you directly to the main content area.</p>
+        </section>
+
+        <section id="focus-indicators">
+            <h2>Focus Indicators</h2>
+            <p>To help you see which element currently has keyboard focus, all interactive elements display a distinctive blue outline when focused:</p>
+            <div class="focus-example">This is how a focused element appears</div>
+            <p>This visual indicator helps you track your position as you navigate through the application with the keyboard.</p>
+            <p>The focus indicators have been designed to:</p>
+            <ul>
+                <li>Have high contrast (meeting WCAG 2.1 requirements)</li>
+                <li>Be clearly visible against all background colors</li>
+                <li>Be distinct from hover states</li>
+            </ul>
+        </section>
+
+        <section id="form-navigation">
+            <h2>Form Navigation</h2>
+            <p>The member registration form can be navigated as follows:</p>
+            <ol>
+                <li>Use <span class="keyboard-key">Tab</span> to move through form fields in order</li>
+                <li>Complete each field with keyboard input</li>
+                <li>When the Register button has focus, press <span class="keyboard-key">Enter</span> or <span class="keyboard-key">Space</span> to submit the form</li>
+                <li>Form validation messages will be announced by screen readers</li>
+            </ol>
+            <p>Remember that you can use <span class="keyboard-key">Alt</span> + <span class="keyboard-key">R</span> to jump directly to the Register button from anywhere in the application.</p>
+        </section>
+
+        <section id="table-navigation">
+            <h2>Table Navigation</h2>
+            <p>The Members table can be navigated using the keyboard:</p>
+            <ol>
+                <li>Tab to the table (it has a tabindex of 0)</li>
+                <li>Once the table has focus, use arrow keys to navigate between cells:
+                    <ul>
+                        <li><span class="keyboard-key">↑</span> and <span class="keyboard-key">↓</span>: Move between rows</li>
+                        <li><span class="keyboard-key">←</span> and <span class="keyboard-key">→</span>: Move between columns</li>
+                    </ul>
+                </li>
+                <li>When a cell containing a link has focus, press <span class="keyboard-key">Enter</span> to activate the link</li>
+            </ol>
+        </section>
+    </main>
+
+    <footer>
+        <p>This keyboard navigation guide was created to improve accessibility in accordance with WCAG 2.1 guidelines.</p>
+        <p><a href="../index.jsf">Return to KitchenSink Application</a></p>
+    </footer>
+</body>
+</html>
