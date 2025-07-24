@@ -1,0 +1,325 @@
+/**
+ * Keyboard Help Dialog Styles for KitchenSink
+ * 
+ * This file contains comprehensive styling for the keyboard shortcuts help dialog
+ * with a focus on accessibility, readability, and integration with the existing theme.
+ * 
+ * Implemented for Linear ticket FAC-22
+ */
+
+/* =========================================================================
+   1. Modal Overlay and Positioning
+   ========================================================================= */
+
+.keyboard-help-dialog {
+  /* Overlay positioning */
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  
+  /* Overlay background */
+  background-color: rgba(0, 0, 0, 0.7);
+  
+  /* Flexbox for centering the dialog */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Initial state for animations */
+  opacity: 0;
+  visibility: hidden;
+  
+  /* Transition for smooth appearance */
+  transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+/* Active state for the dialog */
+.keyboard-help-dialog[style*="display: block"] {
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Dialog content container */
+.dialog-content {
+  /* Sizing */
+  width: 90%;
+  max-width: 550px;
+  max-height: 80vh;
+  overflow-y: auto;
+  
+  /* Positioning */
+  position: relative;
+  margin: 1.75rem auto;
+  
+  /* Visual styling */
+  background-color: #ffffff;
+  border: 1px solid #8c8f91;
+  border-radius: 6px;
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+  
+  /* Initial state for animations */
+  transform: translateY(-20px);
+  transition: transform 0.3s ease;
+}
+
+/* Active state for the dialog content */
+.keyboard-help-dialog[style*="display: block"] .dialog-content {
+  transform: translateY(0);
+}
+
+/* =========================================================================
+   2. Dialog Box Styling
+   ========================================================================= */
+
+.dialog-content {
+  /* Typography */
+  font-family: "Lucida Sans Unicode", "Lucida Grande", sans-serif;
+  color: #363636;
+  
+  /* Spacing */
+  padding: 1.5rem;
+}
+
+.dialog-content h2 {
+  /* Title styling */
+  color: #243446;
+  font-size: 1.5em;
+  margin-top: 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #e5e5e5;
+  padding-bottom: 0.75rem;
+}
+
+.dialog-content p {
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.dialog-content ul {
+  margin-bottom: 1.5rem;
+  padding-left: 1.5rem;
+}
+
+.dialog-content li {
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+/* =========================================================================
+   3. Keyboard Shortcut Display Styling
+   ========================================================================= */
+
+.dialog-content kbd {
+  /* Key appearance */
+  display: inline-block;
+  padding: 0.2em 0.4em;
+  font-family: "Courier New", monospace;
+  font-size: 0.9em;
+  font-weight: 600;
+  line-height: 1;
+  white-space: nowrap;
+  
+  /* Visual styling */
+  color: #333;
+  background-color: #f7f7f7;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  box-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
+  
+  /* Spacing */
+  margin: 0 0.2em;
+}
+
+/* Special styling for combination keys */
+.dialog-content kbd + kbd {
+  margin-left: 0.2em;
+}
+
+/* =========================================================================
+   4. Focus Management and Accessibility States
+   ========================================================================= */
+
+/* Focus styles for interactive elements */
+.dialog-content button:focus,
+.dialog-content a:focus {
+  outline: 3px solid #005fcc;
+  outline-offset: 2px;
+  position: relative;
+  z-index: 2;
+}
+
+/* Ensure the dialog itself can receive focus */
+.keyboard-help-dialog:focus {
+  outline: none; /* The dialog itself doesn't need a visible outline */
+}
+
+/* Make sure the dialog content is properly accessible */
+.dialog-content:focus {
+  outline: none;
+}
+
+/* =========================================================================
+   5. Responsive Design Considerations
+   ========================================================================= */
+
+/* Medium screens */
+@media (max-width: 768px) {
+  .dialog-content {
+    width: 95%;
+    padding: 1.25rem;
+  }
+  
+  .dialog-content h2 {
+    font-size: 1.3em;
+  }
+}
+
+/* Small screens */
+@media (max-width: 480px) {
+  .dialog-content {
+    width: 95%;
+    padding: 1rem;
+    max-height: 85vh;
+  }
+  
+  .dialog-content h2 {
+    font-size: 1.2em;
+  }
+  
+  .dialog-content ul {
+    padding-left: 1.25rem;
+  }
+}
+
+/* =========================================================================
+   6. Animation and Transition Effects
+   ========================================================================= */
+
+/* Dialog appearance animation */
+@keyframes dialogFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes dialogFadeOut {
+  from {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateY(-20px);
+  }
+}
+
+/* Apply animations when dialog is shown/hidden */
+.keyboard-help-dialog.dialog-enter {
+  animation: dialogFadeIn 0.3s ease forwards;
+}
+
+.keyboard-help-dialog.dialog-exit {
+  animation: dialogFadeOut 0.3s ease forwards;
+}
+
+/* =========================================================================
+   7. Close Button Styling
+   ========================================================================= */
+
+.close-button {
+  /* Positioning */
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  
+  /* Sizing and spacing */
+  padding: 0.5rem 1rem;
+  
+  /* Visual styling */
+  background-color: #f1f1f1;
+  border: 1px solid #d5d5d5;
+  border-radius: 4px;
+  color: #333;
+  font-weight: bold;
+  cursor: pointer;
+  
+  /* Transitions */
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.close-button:hover {
+  background-color: #e5e5e5;
+  border-color: #c5c5c5;
+}
+
+.close-button:active {
+  background-color: #d5d5d5;
+  border-color: #b5b5b5;
+}
+
+/* Position the close button at the bottom for mobile */
+@media (max-width: 480px) {
+  .close-button {
+    position: static;
+    display: block;
+    width: 100%;
+    margin-top: 1rem;
+    padding: 0.75rem;
+  }
+}
+
+/* =========================================================================
+   8. High Contrast Mode Support
+   ========================================================================= */
+
+/* Windows high contrast mode */
+@media (forced-colors: active) {
+  .keyboard-help-dialog {
+    border: 2px solid CanvasText;
+  }
+  
+  .dialog-content {
+    background-color: Canvas;
+    color: CanvasText;
+    border: 2px solid CanvasText;
+  }
+  
+  .dialog-content h2 {
+    color: CanvasText;
+    border-bottom: 1px solid CanvasText;
+  }
+  
+  .dialog-content kbd {
+    border: 1px solid CanvasText;
+    color: CanvasText;
+    background-color: Canvas;
+  }
+  
+  .close-button {
+    border: 2px solid CanvasText;
+    color: CanvasText;
+    background-color: Canvas;
+  }
+  
+  .close-button:focus {
+    outline: 2px solid CanvasText;
+  }
+}
+
+/* Prefers reduced motion */
+@media (prefers-reduced-motion: reduce) {
+  .keyboard-help-dialog,
+  .dialog-content,
+  .close-button {
+    transition: none;
+    animation: none;
+  }
+}

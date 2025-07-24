@@ -14,33 +14,43 @@
     See the License for the specific language governing permissions and
     limitations under the License.
 -->
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
-    "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml"
-    xmlns:h="http://java.sun.com/jsf/html"
-    xmlns:ui="http://java.sun.com/jsf/facelets">
+<!DOCTYPE html>
+<html lang="en"
+      xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://java.sun.com/jsf/html"
+      xmlns:ui="http://java.sun.com/jsf/facelets">
 <h:head>
     <title>kitchensink</title>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta charset="utf-8" />
+    <!-- Responsive viewport -->
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <h:outputStylesheet name="css/screen.css" />
+    <!-- Keyboard-help dialog styling -->
+    <h:outputStylesheet name="css/keyboard-help-dialog.css" />
+    <!-- Keyboard navigation logic -->
+    <h:outputScript name="js/keyboard-navigation.js" target="body" />
 </h:head>
 <h:body>
+    <!-- Skip link for keyboard users -->
+    <a href="#content" class="skip-link">Skip to main content</a>
     <div id="container">
         <div class="dualbrand">
             <img src="resources/gfx/rhjb_eap_logo.png" width="300" height="175" />
         </div>
-        <div id="content">
+        <!-- Main content landmark -->
+        <div id="content" role="main" tabindex="-1">
             <ui:insert name="content">
                     [Template content will be inserted here]
          </ui:insert>
         </div>
-        <div id="aside">
+        <!-- Site navigation landmark -->
+        <nav id="aside" role="navigation">
             <p>Learn more about Red Hat JBoss Enterprise Application Platform.</p>
             <ul>
                 <li><a href="https://access.redhat.com/documentation/en/red-hat-jboss-enterprise-application-platform/">Documentation</a></li>
                 <li><a href="http://www.redhat.com/en/technologies/jboss-middleware/application-platform">Product Information</a></li>
             </ul>
-        </div>
+        </nav>
         <div id="footer">
             <p>
                 This project was generated from a Maven archetype from

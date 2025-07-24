@@ -21,50 +21,66 @@
                 xmlns:h="jakarta.faces.html"
                 template="/WEB-INF/templates/default.xhtml">
     <ui:define name="content">
-        <h1>Welcome to JBoss!</h1>
+        <h1 id="welcome-heading">Welcome to JBoss!</h1>
 
         <div>
             <p>You have successfully deployed a Jakarta EE Enterprise
                 Application.</p>
         </div>
 
-        <h:form id="reg">
-            <h2>Member Registration</h2>
+        <!-- ARIA live region for status announcements -->
+        <div id="aria-live-status" class="visually-hidden" aria-live="polite" aria-atomic="true"></div>
+
+        <h:form id="reg" role="form" aria-labelledby="member-reg-heading">
+            <h2 id="member-reg-heading">Member Registration
+                <span class="kbd-shortcut" aria-hidden="true">Ctrl+R to register / Ctrl+C to clear</span>
+            </h2>
             <p>Enforces annotation-based constraints defined on the
                 model class.</p>
             <h:panelGrid columns="3" columnClasses="titleCell">
                 <h:outputLabel for="name" value="Name:" />
-                <h:inputText id="name" value="#{newMember.name}" />
+                <h:inputText id="name" value="#{newMember.name}"
+                             aria-describedby="name-msg" />
                 <h:message for="name" errorClass="invalid" />
 
                 <h:outputLabel for="email" value="Email:" />
-                <h:inputText id="email" value="#{newMember.email}" />
-                <h:message for="email" errorClass="invalid" />
+                <h:inputText id="email" value="#{newMember.email}"
+                             aria-describedby="email-msg" />
+                <h:message for="email" errorClass="invalid" id="email-msg" />
 
                 <h:outputLabel for="phoneNumber" value="Phone #:" />
                 <h:inputText id="phoneNumber"
-                             value="#{newMember.phoneNumber}" />
-                <h:message for="phoneNumber" errorClass="invalid" />
+                             value="#{newMember.phoneNumber}"
+                             aria-describedby="phone-msg" />
+                <h:message for="phoneNumber" errorClass="invalid" id="phone-msg" />
             </h:panelGrid>
 
             <p>
                 <h:panelGrid columns="2">
                     <h:commandButton id="register"
                                      action="#{memberController.register}"
-                                     value="Register" styleClass="register" />
+                                     value="Register"
+                                     styleClass="register"
+                                     aria-describedby="register-hint">
+                        <span class="kbd-shortcut" aria-hidden="true">Ctrl+R</span>
+                    </h:commandButton>
+                    <span id="register-hint" class="visually-hidden">Press Ctrl plus R to register.</span>
                     <h:messages styleClass="messages"
                                 errorClass="invalid" infoClass="valid"
                                 warnClass="warning" globalOnly="true" />
                 </h:panelGrid>
             </p>
         </h:form>
-        <h2>Members</h2>
+        <h2 id="members-heading">Members
+            <span class="kbd-shortcut" aria-hidden="true">Ctrl+T to navigate table</span>
+        </h2>
         <h:panelGroup rendered="#{empty members}">
             <em>No registered members.</em>
         </h:panelGroup>
         <h:dataTable var="_member" value="#{members}"
                      rendered="#{not empty members}"
-                     styleClass="simpletablestyle">
+                     styleClass="simpletablestyle"
+                     role="grid" aria-label="Registered members list" tabindex="0">
             <h:column>
                 <f:facet name="header">Id</f:facet>
                     #{_member.id}
