@@ -1,2 +1,4 @@
 *.sh   text eol=lf
 *.bat  text eol=crlf
+
+# Test PR: no functional changes
